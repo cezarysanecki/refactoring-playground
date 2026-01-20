@@ -1,6 +1,6 @@
 package pl.cezarysanecki.legacyworkhop;
 
-import pl.cezarysanecki.legacyworkhop.external.SignVerifier;
+import pl.cezarysanecki.legacyworkhop.signature.SignatureVerifier;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -8,16 +8,16 @@ import java.util.UUID;
 
 public class PolicyPurchaseService {
 
-    private final SignVerifier signVerifier;
+    private final SignatureVerifier signatureVerifier;
     private final OfferRepository offerRepository;
 
-    public PolicyPurchaseService(SignVerifier signVerifier, OfferRepository offerRepository) {
-        this.signVerifier = signVerifier;
+    public PolicyPurchaseService(SignatureVerifier signatureVerifier, OfferRepository offerRepository) {
+        this.signatureVerifier = signatureVerifier;
         this.offerRepository = offerRepository;
     }
 
     public PurchaseResult purchasePolicy(URI policyLink) {
-        if (!signVerifier.hasValidSignature(policyLink)) {
+        if (!signatureVerifier.hasValidSignature(policyLink)) {
             return PurchaseResult.invalidLink();
         }
 
