@@ -1,7 +1,6 @@
 package pl.cezarysanecki.policy;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.time.Year;
 
 public class VehicleService {
 
@@ -14,18 +13,13 @@ public class VehicleService {
     public double calculateDiscountFor(Long policyId) {
         Policy policy = policyRepository.findById(policyId)
                 .orElseThrow(() -> new IllegalArgumentException("cannot find policy by id: " + policyId));
-        Set<Integer> productionYears = policy.getVehicles()
-                .stream()
-                .map(Vehicle::getProductionYear)
-                .collect(Collectors.toUnmodifiableSet());
+        Vehicles vehicles = new Vehicles(policy.getVehicles());
 
-        if (productionYears.stream().anyMatch(productionYear -> productionYear < 2000)) {
+        if (vehicles.hasAnyOlderThan(Year.of(2000))) {
             throw new IllegalStateException("we do not handle vehicles older than made in 2000");
         }
 
-        long newVehiclesCount = productionYears.stream()
-                .filter(productionYear -> productionYear > 2020)
-                .count();
+        long newVehiclesCount = vehicles.countProducedAfter(Year.of(2020));
 
         if (newVehiclesCount <= 5) {
             return newVehiclesCount * 5.0;
@@ -36,25 +30,17 @@ public class VehicleService {
     public boolean isEligibleForClassicCarDiscount(Long policyId) {
         Policy policy = policyRepository.findById(policyId)
                 .orElseThrow(() -> new IllegalArgumentException("cannot find policy by id: " + policyId));
-        Set<Integer> productionYears = policy.getVehicles()
-                .stream()
-                .map(Vehicle::getProductionYear)
-                .collect(Collectors.toUnmodifiableSet());
+        Vehicles vehicles = new Vehicles(policy.getVehicles());
 
-        return productionYears.stream().allMatch(productionYear -> productionYear < 1990);
+        return vehicles.allProducedBefore(Year.of(1990));
     }
 
-    public int findOldestVehicleProductionYear(Long policyId) {
+    public Year findOldestVehicleProductionYear(Long policyId) {
         Policy policy = policyRepository.findById(policyId)
                 .orElseThrow(() -> new IllegalArgumentException("cannot find policy by id: " + policyId));
-        Set<Integer> productionYears = policy.getVehicles()
-                .stream()
-                .map(Vehicle::getProductionYear)
-                .collect(Collectors.toUnmodifiableSet());
+        Vehicles vehicles = new Vehicles(policy.getVehicles());
 
-        return productionYears.stream()
-                .min(Integer::compareTo)
-                .orElseThrow(() -> new IllegalStateException("policy has no vehicles"));
+        return vehicles.findOldestProductionYear();
     }
 
 }

@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
+import java.time.Year;
+
 @Entity
 public class Vehicle {
 
@@ -16,7 +18,7 @@ public class Vehicle {
     @ManyToOne
     private Policy policy;
 
-    private int productionYear;
+    private Year productionYear;
 
     // many other fields
 
@@ -28,7 +30,7 @@ public class Vehicle {
         return policy;
     }
 
-    public int getProductionYear() {
+    public Year getProductionYear() {
         return productionYear;
     }
 }

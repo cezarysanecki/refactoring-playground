@@ -1,8 +1,6 @@
 package pl.cezarysanecki.policy;
 
 import java.time.Year;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class InsurancePremiumService {
 
@@ -17,30 +15,22 @@ public class InsurancePremiumService {
     public double calculateAnnualPremium(Long policyId) {
         Policy policy = policyRepository.findById(policyId)
                 .orElseThrow(() -> new IllegalArgumentException("cannot find policy by id: " + policyId));
-        Set<Integer> productionYears = policy.getVehicles()
-                .stream()
-                .map(Vehicle::getProductionYear)
-                .collect(Collectors.toUnmodifiableSet());
+        Vehicles vehicles = new Vehicles(policy.getVehicles());
 
-        int currentYear = Year.now().getValue();
-        double totalAgeMultiplier = productionYears.stream()
-                .mapToDouble(productionYear -> currentYear - productionYear)
+        Year currentYear = Year.now();
+        return BASE_PREMIUM * vehicles.productionYears()
+                .stream()
+                .mapToDouble(productionYear -> currentYear.getValue() - productionYear.getValue())
                 .map(age -> 1 + (age * 0.02))
                 .sum();
-
-        return BASE_PREMIUM * totalAgeMultiplier;
     }
 
     public boolean requiresInspection(Long policyId) {
         Policy policy = policyRepository.findById(policyId)
                 .orElseThrow(() -> new IllegalArgumentException("cannot find policy by id: " + policyId));
-        Set<Integer> productionYears = policy.getVehicles()
-                .stream()
-                .map(Vehicle::getProductionYear)
-                .collect(Collectors.toUnmodifiableSet());
+        Vehicles vehicles = new Vehicles(policy.getVehicles());
 
-        int tenYearsAgo = Year.now().getValue() - 10;
-        return productionYears.stream().anyMatch(productionYear -> productionYear < tenYearsAgo);
+        return vehicles.hasAnyOlderThan(Year.now().minusYears(10));
     }
 
 }
