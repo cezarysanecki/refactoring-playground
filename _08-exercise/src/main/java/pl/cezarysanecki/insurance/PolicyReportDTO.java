@@ -20,6 +20,24 @@ public class PolicyReportDTO {
     public PolicyReportDTO() {
     }
 
+    public PolicyReportDTO(Long policyId, String policyNumber, String holderName,
+                           LocalDate startDate, LocalDate endDate, String status,
+                           BigDecimal totalPremium, int coverageCount,
+                           BigDecimal totalSumInsured, String coverageTypesJoined) {
+        this.policyId = policyId;
+        this.policyNumber = policyNumber;
+        this.holderName = holderName;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = status;
+        this.totalPremium = totalPremium;
+        this.coverageCount = coverageCount;
+        this.totalSumInsured = totalSumInsured;
+        this.coverageTypes = coverageTypesJoined != null
+                ? List.of(coverageTypesJoined.split(","))
+                : List.of();
+    }
+
     public Long getPolicyId() {
         return policyId;
     }
