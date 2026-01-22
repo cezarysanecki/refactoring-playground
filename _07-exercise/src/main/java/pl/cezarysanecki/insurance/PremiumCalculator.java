@@ -18,33 +18,26 @@ public class PremiumCalculator {
     }
 
     public BigDecimal calculatePremiumProposal(Policy policy) {
-        BigDecimal basePremium = calculateBasePremium(policy);
-        BigDecimal marginPercent = marginProvider.getMarginPercent(policy.getType());
-        int taxPercent = taxProvider.getTaxPercentForPolicyType(policy.getType());
+        BigDecimal netPremium = calculateNetPremium(policy);
+        TaxPercent tax = taxProvider.getTaxFor(policy.getType());
 
-        BigDecimal premiumWithMargin = basePremium.add(
-                basePremium.multiply(marginPercent).divide(ONE_HUNDRED, 2, RoundingMode.HALF_UP)
-        );
-
-        BigDecimal taxMultiplier = new BigDecimal(taxPercent).divide(ONE_HUNDRED, 4, RoundingMode.HALF_UP);
-        BigDecimal finalPremium = premiumWithMargin.add(
-                premiumWithMargin.multiply(taxMultiplier)
-        );
-
-        return finalPremium.setScale(2, RoundingMode.HALF_UP);
+        return tax.applyTo(netPremium);
     }
 
     public BigDecimal calculateTaxAmount(Policy policy) {
+        BigDecimal netPremium = calculateNetPremium(policy);
+        TaxPercent tax = taxProvider.getTaxFor(policy.getType());
+
+        return tax.calculateTaxOn(netPremium);
+    }
+
+    private BigDecimal calculateNetPremium(Policy policy) {
         BigDecimal basePremium = calculateBasePremium(policy);
         BigDecimal marginPercent = marginProvider.getMarginPercent(policy.getType());
-        int taxPercent = taxProvider.getTaxPercentForPolicyType(policy.getType());
 
-        BigDecimal premiumWithMargin = basePremium.add(
+        return basePremium.add(
                 basePremium.multiply(marginPercent).divide(ONE_HUNDRED, 2, RoundingMode.HALF_UP)
         );
-
-        BigDecimal taxMultiplier = new BigDecimal(taxPercent).divide(ONE_HUNDRED, 4, RoundingMode.HALF_UP);
-        return premiumWithMargin.multiply(taxMultiplier).setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calculateBasePremium(Policy policy) {

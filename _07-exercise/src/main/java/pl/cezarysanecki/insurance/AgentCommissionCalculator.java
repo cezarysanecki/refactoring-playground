@@ -17,25 +17,22 @@ public class AgentCommissionCalculator {
     }
 
     public BigDecimal calculateGrossCommission(BigDecimal netPremium, PolicyType policyType) {
-        BigDecimal netCommission = netPremium
-                .multiply(COMMISSION_RATE)
-                .divide(ONE_HUNDRED, 2, RoundingMode.HALF_UP);
+        BigDecimal netCommission = calculateNetCommission(netPremium);
+        TaxPercent tax = taxProvider.getTaxFor(policyType);
 
-        int taxPercent = taxProvider.getTaxPercentForPolicyType(policyType);
-        BigDecimal taxMultiplier = new BigDecimal(taxPercent).divide(ONE_HUNDRED, 4, RoundingMode.HALF_UP);
-
-        return netCommission.add(netCommission.multiply(taxMultiplier))
-                .setScale(2, RoundingMode.HALF_UP);
+        return tax.applyTo(netCommission);
     }
 
     public BigDecimal calculateTaxOnCommission(BigDecimal netPremium, PolicyType policyType) {
-        BigDecimal netCommission = netPremium
+        BigDecimal netCommission = calculateNetCommission(netPremium);
+        TaxPercent tax = taxProvider.getTaxFor(policyType);
+
+        return tax.calculateTaxOn(netCommission);
+    }
+
+    private BigDecimal calculateNetCommission(BigDecimal netPremium) {
+        return netPremium
                 .multiply(COMMISSION_RATE)
                 .divide(ONE_HUNDRED, 2, RoundingMode.HALF_UP);
-
-        int taxPercent = taxProvider.getTaxPercentForPolicyType(policyType);
-        BigDecimal taxMultiplier = new BigDecimal(taxPercent).divide(ONE_HUNDRED, 4, RoundingMode.HALF_UP);
-
-        return netCommission.multiply(taxMultiplier).setScale(2, RoundingMode.HALF_UP);
     }
 }

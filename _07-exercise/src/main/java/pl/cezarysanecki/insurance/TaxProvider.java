@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaxProvider {
 
-    public int getTaxPercentForPolicyType(PolicyType type) {
+    public TaxPercent getTaxFor(PolicyType type) {
         return switch (type) {
-            case HOME, CAR, TRAVEL -> 23;
-            case LIFE -> 8;
+            case HOME, CAR, TRAVEL -> TaxPercent.standard();
+            case LIFE -> TaxPercent.reduced();
         };
     }
 }
