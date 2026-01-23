@@ -8,8 +8,6 @@ import java.math.RoundingMode;
 @Service
 public class ReportService {
 
-    private static final String POLICY_NUMBER_PATTERN = "POL-\\d{4}-\\d{6}";
-
     private final PolicyService policyService;
     private final ClaimService claimService;
 
@@ -46,12 +44,14 @@ public class ReportService {
     }
 
     public String generatePolicyReport(String policyNumber) {
-        Policy policy = policyService.findByPolicyNumber(policyNumber);
+        PolicyNumber policyNumberVO = new PolicyNumber(policyNumber);
+
+        Policy policy = policyService.findByPolicyNumber(policyNumberVO.getValue());
         if (policy == null) {
             return "Policy not found";
         }
 
-        BigDecimal totalClaimed = claimService.calculateTotalClaimedForPolicy(policyNumber);
+        BigDecimal totalClaimed = claimService.calculateTotalClaimedForPolicy(policyNumberVO.getValue());
 
         String formattedSumInsured = policy.getSumInsured()
                 .setScale(2, RoundingMode.HALF_UP)

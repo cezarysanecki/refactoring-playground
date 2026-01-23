@@ -8,8 +8,6 @@ import java.time.LocalDate;
 @Service
 public class PolicyService {
 
-    private static final String POLICY_NUMBER_PATTERN = "POL-\\d{4}-\\d{6}";
-
     private final PolicyRepository policyRepository;
 
     public PolicyService(PolicyRepository policyRepository) {
@@ -19,21 +17,6 @@ public class PolicyService {
     public Policy createPolicy(String policyNumber, String clientPesel,
                                BigDecimal sumInsured, BigDecimal premium,
                                LocalDate startDate, LocalDate endDate) {
-
-        if (policyNumber == null || policyNumber.isBlank()) {
-            throw new IllegalArgumentException("Policy number cannot be empty");
-        }
-        if (!policyNumber.matches(POLICY_NUMBER_PATTERN)) {
-            throw new IllegalArgumentException(
-                    "Invalid policy number format. Expected format: POL-YYYY-NNNNNN");
-        }
-        String yearPart = policyNumber.substring(4, 8);
-        int year = Integer.parseInt(yearPart);
-        int currentYear = LocalDate.now().getYear();
-        if (year < 2000 || year > currentYear) {
-            throw new IllegalArgumentException(
-                    "Year in policy number must be between 2000 and current year");
-        }
 
         if (clientPesel == null || clientPesel.length() != 11) {
             throw new IllegalArgumentException("PESEL must have exactly 11 digits");
@@ -58,27 +41,14 @@ public class PolicyService {
             throw new IllegalArgumentException("Premium must be greater than zero");
         }
 
-        Policy policy = new Policy(policyNumber, clientPesel, sumInsured, premium, startDate, endDate);
+        PolicyNumber policyNumberVO = new PolicyNumber(policyNumber);
+        Policy policy = new Policy(policyNumberVO.getValue(), clientPesel, sumInsured, premium, startDate, endDate);
         return policyRepository.save(policy);
     }
 
     public Policy findByPolicyNumber(String policyNumber) {
-        if (policyNumber == null || policyNumber.isBlank()) {
-            throw new IllegalArgumentException("Policy number cannot be empty");
-        }
-        if (!policyNumber.matches(POLICY_NUMBER_PATTERN)) {
-            throw new IllegalArgumentException(
-                    "Invalid policy number format. Expected format: POL-YYYY-NNNNNN");
-        }
-        String yearPart = policyNumber.substring(4, 8);
-        int year = Integer.parseInt(yearPart);
-        int currentYear = LocalDate.now().getYear();
-        if (year < 2000 || year > currentYear) {
-            throw new IllegalArgumentException(
-                    "Year in policy number must be between 2000 and current year");
-        }
-
-        return policyRepository.findByPolicyNumber(policyNumber).orElse(null);
+        PolicyNumber policyNumberVO = new PolicyNumber(policyNumber);
+        return policyRepository.findByPolicyNumber(policyNumberVO.getValue()).orElse(null);
     }
 
     public void updateSumInsured(String policyNumber, BigDecimal newSumInsured) {
@@ -86,22 +56,8 @@ public class PolicyService {
             throw new IllegalArgumentException("Sum insured must be greater than zero");
         }
 
-        if (policyNumber == null || policyNumber.isBlank()) {
-            throw new IllegalArgumentException("Policy number cannot be empty");
-        }
-        if (!policyNumber.matches(POLICY_NUMBER_PATTERN)) {
-            throw new IllegalArgumentException(
-                    "Invalid policy number format. Expected format: POL-YYYY-NNNNNN");
-        }
-        String yearPart = policyNumber.substring(4, 8);
-        int year = Integer.parseInt(yearPart);
-        int currentYear = LocalDate.now().getYear();
-        if (year < 2000 || year > currentYear) {
-            throw new IllegalArgumentException(
-                    "Year in policy number must be between 2000 and current year");
-        }
-
-        policyRepository.findByPolicyNumber(policyNumber).ifPresent(policy -> {
+        PolicyNumber policyNumberVO = new PolicyNumber(policyNumber);
+        policyRepository.findByPolicyNumber(policyNumberVO.getValue()).ifPresent(policy -> {
             policy.setSumInsured(newSumInsured);
             policyRepository.save(policy);
         });

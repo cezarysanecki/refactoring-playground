@@ -8,8 +8,6 @@ import java.time.LocalDate;
 @Service
 public class ClaimService {
 
-    private static final String POLICY_NUMBER_PATTERN = "POL-\\d{4}-\\d{6}";
-
     private final ClaimRepository claimRepository;
     private final PolicyService policyService;
 
@@ -30,22 +28,9 @@ public class ClaimService {
                     "Expected format: CLM-YYYY-NNNNNN");
         }
 
-        if (policyNumber == null || policyNumber.isBlank()) {
-            throw new IllegalArgumentException("Policy number cannot be empty");
-        }
-        if (!policyNumber.matches(POLICY_NUMBER_PATTERN)) {
-            throw new IllegalArgumentException(
-                    "Invalid policy number format. Expected format: POL-YYYY-NNNNNN");
-        }
-        String yearPart = policyNumber.substring(4, 8);
-        int year = Integer.parseInt(yearPart);
-        int currentYear = LocalDate.now().getYear();
-        if (year < 2000 || year > currentYear) {
-            throw new IllegalArgumentException(
-                    "Year in policy number must be between 2000 and current year");
-        }
+        PolicyNumber policyNumberVO = new PolicyNumber(policyNumber);
 
-        Policy policy = policyService.findByPolicyNumber(policyNumber);
+        Policy policy = policyService.findByPolicyNumber(policyNumberVO.getValue());
         if (policy == null) {
             throw new IllegalArgumentException("Policy with given number does not exist");
         }
@@ -58,7 +43,7 @@ public class ClaimService {
             throw new IllegalArgumentException("Claim amount cannot exceed sum insured");
         }
 
-        Claim claim = new Claim(claimNumber, policyNumber, claimedAmount, incidentDate, description);
+        Claim claim = new Claim(claimNumber, policyNumberVO.getValue(), claimedAmount, incidentDate, description);
         return claimRepository.save(claim);
     }
 
@@ -99,23 +84,8 @@ public class ClaimService {
     }
 
     public BigDecimal calculateTotalClaimedForPolicy(String policyNumber) {
-
-        if (policyNumber == null || policyNumber.isBlank()) {
-            throw new IllegalArgumentException("Policy number cannot be empty");
-        }
-        if (!policyNumber.matches(POLICY_NUMBER_PATTERN)) {
-            throw new IllegalArgumentException(
-                    "Invalid policy number format. Expected format: POL-YYYY-NNNNNN");
-        }
-        String yearPart = policyNumber.substring(4, 8);
-        int year = Integer.parseInt(yearPart);
-        int currentYear = LocalDate.now().getYear();
-        if (year < 2000 || year > currentYear) {
-            throw new IllegalArgumentException(
-                    "Year in policy number must be between 2000 and current year");
-        }
-
-        return claimRepository.findAllByPolicyNumber(policyNumber)
+        PolicyNumber policyNumberVO = new PolicyNumber(policyNumber);
+        return claimRepository.findAllByPolicyNumber(policyNumberVO.getValue())
                 .stream()
                 .map(Claim::getClaimedAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
