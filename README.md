@@ -14,6 +14,7 @@ The talks and workshops were given in Polish 🇵🇱 PL. The code and names are
 | [`talk-spring-harder-and-easier/`](talk-spring-harder-and-easier) | talk "How to make your life harder and easier with Spring", WDI 2025 | Spring features that help and hurt | Java 21, Spring Boot 3.4, Gradle |
 | [`workshop-legacy/`](workshop-legacy) | workshop on refactoring legacy code | eight exercises in an insurance and parcel locker domain | Java 21, Spring Boot 3.5, Gradle |
 | [`workshop-unit-testing/`](workshop-unit-testing) | workshop "Unit testing revisited" | exercises and solutions, from test basics to observable behavior | Java, Spock (Groovy), Gradle |
+| [`legacy-football-events/`](legacy-football-events) | open-source project [djarza/football-events](https://github.com/djarza/football-events), MIT | a real event-driven system that is hard to change: a larger refactoring target | Java 17, Kafka Streams, Debezium, PostgreSQL, Docker |
 
 Each directory is a separate project with its own build. The git history of the original repositories is kept.
 
@@ -67,6 +68,14 @@ cd workshop-legacy && ./gradlew test
 ```bash
 cd workshop-unit-testing/exercises && ./gradlew test
 ```
+
+### legacy-football-events
+
+Football statistics built from events with Kafka Streams, split into microservices: `football-match`, `football-player`, `football-view-basic`, `football-view-top`, `football-ui` and a shared `football-common`. The original author is [djarza](https://github.com/djarza/football-events), released under the MIT license (see [`LICENSE`](legacy-football-events/LICENSE)). I migrated it to Java 17 and got it running again in 2024.
+
+It is the largest example here and it is hard to change on purpose: shared model code between services, logic spread across stream topologies, little test coverage. Use it to check how an AI agent copes with refactoring a system rather than a single class.
+
+See [`legacy-football-events/README.md`](legacy-football-events/README.md) for the architecture and how to run it with Docker.
 
 ## Using it with an AI agent
 
