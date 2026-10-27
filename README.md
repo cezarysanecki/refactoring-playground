@@ -84,3 +84,7 @@ Pick one directory, ask the agent to refactor it, and compare its version with t
 - Do the existing tests still pass without changes?
 - Did the agent keep the domain language or replace it with technical names?
 - Is the result easier to read than the starting code, or only shorter?
+
+## License
+
+MIT, see [`LICENSE`](LICENSE). `legacy-football-events/` keeps the MIT license of its original author, see [`legacy-football-events/LICENSE`](legacy-football-events/LICENSE).
