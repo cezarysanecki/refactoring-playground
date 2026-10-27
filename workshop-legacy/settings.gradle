@@ -1,0 +1,10 @@
+rootProject.name = 'legacy-workshop'
+
+include '_01-exercise'
+include '_02-exercise'
+include '_03-exercise'
+include '_04-exercise'
+include '_05-exercise'
+include '_06-exercise'
+include '_07-exercise'
+include '_08-exercise'
