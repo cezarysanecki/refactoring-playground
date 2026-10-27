@@ -73,7 +73,7 @@ cd workshop-unit-testing/exercises && ./gradlew test
 
 Football statistics built from events with Kafka Streams, split into microservices: `football-match`, `football-player`, `football-view-basic`, `football-view-top`, `football-ui` and a shared `football-common`. The original author is [djarza](https://github.com/djarza/football-events), released under the MIT license (see [`LICENSE`](legacy-football-events/LICENSE)). I migrated it to Java 17 and got it running again in 2024.
 
-It is the largest example here and it is hard to change on purpose: shared model code between services, logic spread across stream topologies, little test coverage. Use it to check how an AI agent copes with refactoring a system rather than a single class.
+It is the largest example here and it is hard to change: model code shared between services and logic spread across stream topologies. Use it to check how an AI agent copes with refactoring a system rather than a single class.
 
 See [`legacy-football-events/README.md`](legacy-football-events/README.md) for the architecture and how to run it with Docker.
 
